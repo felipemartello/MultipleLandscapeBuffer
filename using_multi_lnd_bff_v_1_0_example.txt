@@ -19,5 +19,4 @@ scl  <-c(250,500) # vector (numeric) - landscape scales(separate by comma)
 #USING THE FUNCTION (function must be loaded before)
 multi_lnd_buff(lndscp,ptos,atrb,scl,dir.grass)
 
-#OUTPUT 
-#functions creates and automatically exports a raster of land use for each sampling point on each scale
+#OUTPUT: functions creates and automatically exports a raster of land use for each sampling point on each scale
