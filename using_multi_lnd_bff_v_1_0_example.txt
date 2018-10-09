@@ -1,0 +1,23 @@
+
+#REQUIRED PACKAGES
+library(raster)
+library(rgrass7)
+library(rgdal)
+
+#SETTING WORK DIRECTORY
+setwd("C:\\multi_lnd_bff_v_1_0\\DB_example_multi_lnd_bff")
+
+#INPUT FILES
+lndscp  <-raster("lnd_use.tif") #raster - Land use raster
+ptos  <-readOGR(dsn = ".", layer = "ptos") #shape file - sample points 
+
+#PARAMETERS
+dir.grass  <-"C:\\Program Files\\GRASS GIS 7.4.0" # vector (character) - GRASS directory
+atrb  <-"id" # character - name of ID sampling points column in shape points
+scl  <-c(250,500) # vector (numeric) - landscape scales(separate by comma)
+
+#USING THE FUNCTION (function must be loaded before)
+multi_lnd_buff(lndscp,ptos,atrb,scl,dir.grass)
+
+#OUTPUT 
+#functions creates and automatically exports a raster of land use for each sampling point on each scale

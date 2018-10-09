@@ -1,0 +1,45 @@
+multi_lnd_buff<-function(lndscp,pts,atrb,scl,dir.grass){
+  
+  initGRASS(gisBase = dir.grass, home=getwd(), gisDbase=getwd(),override=TRUE)
+  
+  x<-match(atrb,colnames(ptos@data))
+  ptos@data[,x]<-as.numeric(as.character(ptos@data[,x]))
+  
+  writeRAST(as(lndscp, "SpatialGridDataFrame"), "lndscp", flags = c("overwrite"))
+  execGRASS("g.region",raster = "lndscp")
+  execGRASS("r.null",parameters = list(map="lndscp",setnull="0"))
+  
+  writeVECT(ptos, "pontos2",  v.in.ogr_flags = c("o","overwrite"), driver = "ESRI Shapefile")
+  
+  execGRASS("v.to.rast", parameters = list(input="pontos2",attribute_column=atrb,output="ptos_rast2",use="attr"))
+  
+  ptos_rast<-raster(readRAST("ptos_rast2"))
+  
+  foo.stat<-data.frame()
+  
+  for (i in 1:length(unique(ptos_rast))){
+    id<-unique(ptos_rast)[i]
+    foo<-ptos_rast
+    foo[foo!=id]<-NA
+    foo[foo==id]<-1
+    
+    
+    writeRAST(as(foo, "SpatialGridDataFrame"), "foo", flags = c("overwrite"))
+    execGRASS("r.buffer",flags=c("overwrite"), parameters = list(input="foo", output="buf_foo2", distances=scl))
+    foo_buffer<-raster(readRAST("buf_foo2"))
+    
+    for(j in 1:length(scl)){
+      
+      bf<-foo_buffer
+      bf[bf<=j+1]<-1
+      bf[bf!=1]<-NA
+      bf<-bf*lndscp
+      
+      
+      crs(bf)<-crs(lndscp)
+      writeRaster(bf, paste("buffer_",i,"_",scl[j],".tif",sep=""))
+      
+    }
+  }
+  write.table(foo.stat,"lnd_bff_stats.txt")
+}
